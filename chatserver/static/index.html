@@ -1,0 +1,85 @@
+<html>
+	<head>
+		<title>Chatter</title>
+		<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"></script>
+		<script src="/socket.io/socket.io.js"></script>
+		<script type="text/javascript">
+			var socket;
+			
+			$(document).ready( function(){
+				socket = io.connect('http://localhost:3000');
+				console.log('connecting...');
+				
+				socket.on('connect', function(){
+					console.log('connected!');
+				});
+				
+				socket.on('news', function (data) {
+				    console.log(data);
+				});
+				
+				socket.on('message', function(message){
+					console.log('message');
+					var data = message.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+					$('#log ul').append('<li>' + data + '</li>');
+					window.scrollBy(0,10000000000000000);
+					entry_el.focus();
+				});
+				
+				var entry_el = $('#entry');
+				entry_el.keypress( function(event){
+					if(event.keyCode != 13) return;
+					var msg = entry_el.attr('value');
+					if(msg){
+						console.log('sending: '+msg);
+						socket.send(msg);
+						entry_el.attr('value','');
+					}
+				});
+			});
+		</script>
+	 <style type="text/css">
+	      body {
+	        background-color: #666;
+	        color: fff;
+	        font-size: 14px;
+	        margin: 0;
+	        padding: 0;
+	        font-family: Helvetica, Arial, Sans-Serif;
+	      }
+	      #log {
+	        margin-bottom: 100px;
+	        width: 100%;
+	      }
+	      #log ul {
+	        padding: 0;
+	        margin: 0;
+	      }
+	      #log ul li {
+	        list-style-type: none;
+	      }
+	      #console {
+	        background-color: black;
+	        color: white;
+	        border-top:1px solid white;
+	        position: fixed;
+	        bottom: 0;
+	        width: 100%;
+	        font-size: 18px;
+	      }
+	      #console input {
+	        width: 100%;
+	        background-color: inherit;
+	        color: inherit;
+	        font-size: inherit;
+	      }
+	    </style>
+	  </head>
+	  <body>
+	    <h1>Chat</h1>
+	    <div id="log"><ul></ul></div>
+	    <div id="console">
+	      <input type="text" id="entry" />
+	    </div>
+	  </body>
+</html>
